@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Heart Disease Predictor</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="hero">
+        <h1>Heart Disease Predictor</h1>
+      </header>
+
+      <main class="grid">
+        <section class="panel">
+          <h2>Train Model</h2>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <label style="font-size:14px;color:#333">Validation Split:
+              <input id="val_size" type="number" step="0.05" min="0" max="0.9" value="0.2" title="Validation size (0-0.9)" style="width:80px;padding:6px;border-radius:6px;border:1px solid #e6eefb;margin-left:4px" />
+            </label>
+            <label style="font-size:14px;color:#333" title="Optional: Enter admin token to authorize training">Admin Token (optional):
+              <input id="train_secret" type="password" placeholder="optional" style="width:120px;padding:6px;border-radius:6px;border:1px solid #e6eefb;margin-left:4px" />
+            </label>
+            <button id="trainBtn" class="btn primary">Train Model</button>
+          </div>
+          <div id="trainResult" class="result" style="margin-top:12px"></div>
+          <div id="analysisPanel" style="margin-top:16px;display:none">
+            <h3 style="font-size:22px;margin-bottom:8px;color:#333">Prediction & Analysis</h3>
+            <canvas id="probChart" width="280" height="180"></canvas>
+            <div id="probLabel" style="font-size:14px;margin-top:8px;color:#123"></div>
+            
+            <div style="margin-top:20px">
+              <h4 style="font-size:16px;margin-bottom:12px;color:#333;font-weight:600">Key Factors</h4>
+              <div id="keyFactors" style="font-size:14px;line-height:1.8">
+                <!-- Key factors will be populated here -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Predict Heart Disease</h2>
+          <p style="color:#666;font-size:14px;margin-bottom:12px">
+            Enter patient information to predict heart disease risk.
+          </p>
+          <form id="predictForm">
+            <div class="row">
+              <label>Age<input name="Age" required /></label>
+              <label>Sex<input name="Sex" required placeholder="M/F"/></label>
+            </div>
+            <div class="row">
+              <label>Chest Pain Type<input name="ChestPainType" required placeholder="ATA/NAP/ASY/TA"/></label>
+              <label>Resting Blood Pressure<input name="RestingBP" required/></label>
+            </div>
+            <div class="row">
+              <label>Cholesterol<input name="Cholesterol" required/></label>
+              <label>Fasting Blood Sugar<input name="FastingBS" required/></label>
+            </div>
+            <div class="row">
+              <label>Resting ECG<input name="RestingECG" required placeholder="Normal/ST/LVH"/></label>
+              <label>Max HR<input name="MaxHR" required/></label>
+            </div>
+            <div class="row">
+              <label>Exercise Angina<input name="ExerciseAngina" required placeholder="Y/N"/></label>
+              <label>Oldpeak<input name="Oldpeak" required/></label>
+            </div>
+            <div class="row">
+              <label>ST Slope<input name="ST_Slope" required placeholder="Up/Flat/Down"/></label>
+            </div>
+
+            <button type="button" id="predictBtn" class="btn primary">Predict</button>
+          </form>
+          <div id="predictResult" class="result"></div>
+        </section>
+      </main>
+    </div>
+    <script src="main.js"></script>
+  </body>
+</html>
