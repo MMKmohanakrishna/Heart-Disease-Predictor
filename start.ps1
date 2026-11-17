@@ -1,4 +1,4 @@
-# Quick start script for Heart Disease Predictor
+﻿# Quick start script for Heart Disease Predictor
 # This script starts both backend and frontend servers
 
 Write-Host "`n=== Heart Disease Predictor - Quick Start ===`n" -ForegroundColor Cyan
@@ -11,17 +11,17 @@ if (-not (Test-Path ".\.venv\Scripts\python.exe")) {
     .\.venv\Scripts\pip.exe install -r backend\requirements.txt
 }
 
-Write-Host "✓ Environment ready" -ForegroundColor Green
+Write-Host "[OK] Environment ready" -ForegroundColor Green
 
-# Start backend server in a new window (set working directory explicitly so $PWD expands)
+# Start both servers from the project root so `backend.main` imports correctly.
+$python = (Resolve-Path ".\.venv\Scripts\python.exe").Path
 Write-Host "`nStarting backend server..." -ForegroundColor Cyan
-$backendJob = Start-Process powershell -ArgumentList "-NoExit", "-Command", "..\..\.venv\Scripts\python.exe -m uvicorn main:app --reload --host 127.0.0.1 --port 8000" -WorkingDirectory "$PWD\backend" -PassThru
+$backendJob = Start-Process -FilePath $python -ArgumentList @("-m", "uvicorn", "backend.main:app", "--reload", "--host", "127.0.0.1", "--port", "8000") -WorkingDirectory "$PWD" -PassThru
 
 Start-Sleep -Seconds 2
 
-# Start frontend server in a new window (set working directory explicitly)
 Write-Host "Starting frontend server..." -ForegroundColor Cyan
-$frontendJob = Start-Process powershell -ArgumentList "-NoExit", "-Command", "python serve_frontend.py" -WorkingDirectory "$PWD" -PassThru
+$frontendJob = Start-Process -FilePath $python -ArgumentList @("-X", "utf8", "serve_frontend.py") -WorkingDirectory "$PWD" -PassThru
 
 Start-Sleep -Seconds 2
 
@@ -33,5 +33,5 @@ Write-Host "`nOpening browser..." -ForegroundColor Cyan
 Start-Sleep -Seconds 1
 Start-Process "http://localhost:3000"
 
-Write-Host "`n✓ Application ready!" -ForegroundColor Green
+Write-Host "`n[OK] Application ready!" -ForegroundColor Green
 Write-Host "  Close the PowerShell windows to stop the servers.`n" -ForegroundColor Yellow

@@ -3,78 +3,394 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Heart Disease Predictor</title>
+    <meta name="description" content="AI-assisted heart disease risk estimation using a Random Forest model trained on clinical data." />
+    <meta name="theme-color" content="#0b1b3a" />
+    <title>CardioPredict — Heart Disease Risk Assessment</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ef4444' d='M12 21s-7.5-4.6-9.6-9.2C.9 8.5 2.7 5 6.1 5c2 0 3.3 1.1 3.9 2.2h.0C10.6 6.1 11.9 5 13.9 5c3.4 0 5.2 3.5 3.7 6.8C19.5 16.4 12 21 12 21z'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
+    <script>
+      // Apply the saved theme before first paint to avoid a flash.
+      try {
+        var t = localStorage.getItem('theme');
+        if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    </script>
   </head>
   <body>
-    <div class="app">
-      <header class="hero">
-        <h1>Heart Disease Predictor</h1>
-      </header>
+    <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
-      <main class="grid">
-        <section class="panel">
-          <h2>Train Model</h2>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <label style="font-size:14px;color:#333">Validation Split:
-              <input id="val_size" type="number" step="0.05" min="0" max="0.9" value="0.2" title="Validation size (0-0.9)" style="width:80px;padding:6px;border-radius:6px;border:1px solid #e6eefb;margin-left:4px" />
-            </label>
-            <label style="font-size:14px;color:#333" title="Optional: Enter admin token to authorize training">Admin Token (optional):
-              <input id="train_secret" type="password" placeholder="optional" style="width:120px;padding:6px;border-radius:6px;border:1px solid #e6eefb;margin-left:4px" />
-            </label>
-            <button id="trainBtn" class="btn primary">Train Model</button>
+    <!-- ============ NAV ============ -->
+    <nav class="nav" id="nav">
+      <div class="container nav-inner">
+        <a class="brand" href="#top" aria-label="CardioPredict home">
+          <span class="brand-mark">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.5 2.7 5 6.1 5c2 0 3.3 1.1 3.9 2.2C10.6 6.1 11.9 5 13.9 5c3.4 0 5.2 3.5 3.7 6.8C19.5 16.4 12 21 12 21z"/></svg>
+          </span>
+          <span class="brand-name">Cardio<b>Predict</b></span>
+        </a>
+        <div class="nav-links">
+          <a href="#assess">Assessment</a>
+          <a href="#train">Model</a>
+          <a href="#about">About</a>
+        </div>
+        <div class="nav-actions">
+          <span class="status-pill" id="statusPill" data-state="checking" role="status" aria-live="polite">
+            <span class="dot"></span><span id="statusText">Connecting…</span>
+          </span>
+          <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+            <svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            <svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ============ HERO ============ -->
+    <header class="hero" id="top">
+      <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+      <div class="hero-grid-bg" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <span class="eyebrow reveal"><span class="pulse-dot"></span> Machine-learning clinical decision support</span>
+          <h1 class="reveal" style="--d:80ms">Know your heart's risk <span class="grad-text">in seconds.</span></h1>
+          <p class="lead reveal" style="--d:160ms">
+            Enter a handful of routine clinical measurements and get an instant, data-driven
+            estimate of heart disease risk from a Random Forest model trained on 918 patient records.
+          </p>
+          <div class="hero-cta reveal" style="--d:240ms">
+            <a href="#assess" class="btn btn-light btn-lg">Start assessment
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+            <a href="#train" class="btn btn-ghost btn-lg">View model</a>
           </div>
-          <div id="trainResult" class="result" style="margin-top:12px"></div>
-          <div id="analysisPanel" style="margin-top:16px;display:none">
-            <h3 style="font-size:22px;margin-bottom:8px;color:#333">Prediction & Analysis</h3>
-            <canvas id="probChart" width="280" height="180"></canvas>
-            <div id="probLabel" style="font-size:14px;margin-top:8px;color:#123"></div>
-            
-            <div style="margin-top:20px">
-              <h4 style="font-size:16px;margin-bottom:12px;color:#333;font-weight:600">Key Factors</h4>
-              <div id="keyFactors" style="font-size:14px;line-height:1.8">
-                <!-- Key factors will be populated here -->
+          <dl class="hero-stats reveal" style="--d:320ms">
+            <div><dt data-count="918">0</dt><dd>Patient records</dd></div>
+            <div><dt data-count="11">0</dt><dd>Clinical features</dd></div>
+            <div><dt id="heroAuc">—</dt><dd>Model ROC&nbsp;AUC</dd></div>
+          </dl>
+        </div>
+
+        <div class="hero-visual reveal" style="--d:200ms" aria-hidden="true">
+          <div class="monitor">
+            <div class="monitor-head">
+              <span>Live ECG</span>
+              <span class="bpm"><i class="beat-heart">♥</i> <b id="bpmNum">72</b> BPM</span>
+            </div>
+            <svg class="ecg" viewBox="0 0 400 120" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="ecgGrad" x1="0" x2="1"><stop offset="0" stop-color="#22d3ee" stop-opacity="0"/><stop offset=".35" stop-color="#22d3ee"/><stop offset="1" stop-color="#f43f5e"/></linearGradient>
+              </defs>
+              <g class="ecg-grid" stroke="currentColor" stroke-opacity=".12"><path d="M0 30H400M0 60H400M0 90H400M50 0V120M100 0V120M150 0V120M200 0V120M250 0V120M300 0V120M350 0V120"/></g>
+              <path class="ecg-line" pathLength="1" d="M0 62 H60 L70 62 L80 40 L90 84 L100 62 H130 L140 62 L150 56 L158 62 H190 L200 62 L210 12 L222 108 L234 62 H270 L280 62 L290 48 L300 62 H340 L350 62 L360 40 L370 84 L380 62 H400"/>
+            </svg>
+            <div class="monitor-foot">
+              <div><small>SpO₂</small><b>98%</b></div>
+              <div><small>BP</small><b>118/76</b></div>
+              <div><small>Rhythm</small><b>Sinus</b></div>
+            </div>
+          </div>
+          <div class="float-card fc1"><span class="fc-ico ok">✓</span><div><b>Model ready</b><small>Random Forest · 200 trees</small></div></div>
+          <div class="float-card fc2"><span class="fc-ico risk">♥</span><div><b>Risk score</b><small>Calculated instantly</small></div></div>
+        </div>
+      </div>
+      <svg class="hero-wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 C240 90 480 0 720 30 C960 60 1200 90 1440 30 V80 H0Z"/></svg>
+    </header>
+
+    <main class="container main">
+      <!-- ============ ASSESSMENT ============ -->
+      <section class="section" id="assess">
+        <div class="section-head reveal">
+          <span class="kicker">Step 1</span>
+          <h2>Patient assessment</h2>
+          <p>Fill in the clinical details below. Not sure what to try? Load a sample patient to explore.</p>
+        </div>
+
+        <div class="assess-grid">
+          <div class="card spot reveal">
+            <div class="card-head">
+              <div>
+                <h3>Clinical details</h3>
+                <p class="muted">All fields are required except where noted.</p>
+              </div>
+              <div class="chips">
+                <button type="button" class="chip" data-sample="low">🌿 Low-risk sample</button>
+                <button type="button" class="chip" data-sample="high">⚠️ High-risk sample</button>
               </div>
             </div>
+
+            <form id="predictForm" novalidate>
+              <fieldset>
+                <legend>Demographics</legend>
+                <div class="fields">
+                  <div class="field">
+                    <label for="Age">Age <small>years</small></label>
+                    <input id="Age" name="Age" type="number" inputmode="numeric" min="1" max="120" step="1" placeholder="e.g. 54" required />
+                    <span class="err" data-for="Age"></span>
+                  </div>
+                  <div class="field">
+                    <span class="label" id="lblSex">Sex</span>
+                    <div class="seg" role="radiogroup" aria-labelledby="lblSex">
+                      <label><input type="radio" name="Sex" value="M" required /><span>Male</span></label>
+                      <label><input type="radio" name="Sex" value="F" /><span>Female</span></label>
+                      <i class="seg-thumb"></i>
+                    </div>
+                    <span class="err" data-for="Sex"></span>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset>
+                <legend>Vitals &amp; labs</legend>
+                <div class="fields">
+                  <div class="field">
+                    <label for="RestingBP">Resting blood pressure <small>mmHg</small></label>
+                    <input id="RestingBP" name="RestingBP" type="number" inputmode="numeric" min="0" max="300" step="1" placeholder="e.g. 130" required />
+                    <span class="err" data-for="RestingBP"></span>
+                  </div>
+                  <div class="field">
+                    <label for="Cholesterol">Serum cholesterol <small>mg/dL · 0 = unknown</small></label>
+                    <input id="Cholesterol" name="Cholesterol" type="number" inputmode="numeric" min="0" max="1000" step="1" placeholder="e.g. 220" required />
+                    <span class="err" data-for="Cholesterol"></span>
+                  </div>
+                  <div class="field">
+                    <span class="label" id="lblFbs">Fasting blood sugar</span>
+                    <div class="seg" role="radiogroup" aria-labelledby="lblFbs">
+                      <label><input type="radio" name="FastingBS" value="0" required /><span>≤ 120 mg/dL</span></label>
+                      <label><input type="radio" name="FastingBS" value="1" /><span>&gt; 120 mg/dL</span></label>
+                      <i class="seg-thumb"></i>
+                    </div>
+                    <span class="err" data-for="FastingBS"></span>
+                  </div>
+                  <div class="field">
+                    <label for="MaxHR">Maximum heart rate <small>bpm</small></label>
+                    <input id="MaxHR" name="MaxHR" type="number" inputmode="numeric" min="30" max="250" step="1" placeholder="e.g. 150" required />
+                    <span class="err" data-for="MaxHR"></span>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset>
+                <legend>Symptoms &amp; ECG</legend>
+                <div class="fields">
+                  <div class="field">
+                    <label for="ChestPainType">Chest pain type</label>
+                    <div class="select-wrap">
+                      <select id="ChestPainType" name="ChestPainType" required>
+                        <option value="" disabled selected>Select…</option>
+                        <option value="TA">Typical angina (TA)</option>
+                        <option value="ATA">Atypical angina (ATA)</option>
+                        <option value="NAP">Non-anginal pain (NAP)</option>
+                        <option value="ASY">Asymptomatic (ASY)</option>
+                      </select>
+                    </div>
+                    <span class="err" data-for="ChestPainType"></span>
+                  </div>
+                  <div class="field">
+                    <label for="RestingECG">Resting ECG</label>
+                    <div class="select-wrap">
+                      <select id="RestingECG" name="RestingECG" required>
+                        <option value="" disabled selected>Select…</option>
+                        <option value="Normal">Normal</option>
+                        <option value="ST">ST-T wave abnormality</option>
+                        <option value="LVH">Left ventricular hypertrophy</option>
+                      </select>
+                    </div>
+                    <span class="err" data-for="RestingECG"></span>
+                  </div>
+                  <div class="field">
+                    <span class="label" id="lblAng">Exercise-induced angina</span>
+                    <div class="seg" role="radiogroup" aria-labelledby="lblAng">
+                      <label><input type="radio" name="ExerciseAngina" value="N" required /><span>No</span></label>
+                      <label><input type="radio" name="ExerciseAngina" value="Y" /><span>Yes</span></label>
+                      <i class="seg-thumb"></i>
+                    </div>
+                    <span class="err" data-for="ExerciseAngina"></span>
+                  </div>
+                  <div class="field">
+                    <label for="Oldpeak">ST depression (Oldpeak)</label>
+                    <input id="Oldpeak" name="Oldpeak" type="number" inputmode="decimal" min="-5" max="10" step="0.1" placeholder="e.g. 1.5" required />
+                    <span class="err" data-for="Oldpeak"></span>
+                  </div>
+                  <div class="field full">
+                    <label for="ST_Slope">Peak-exercise ST slope</label>
+                    <div class="select-wrap">
+                      <select id="ST_Slope" name="ST_Slope" required>
+                        <option value="" disabled selected>Select…</option>
+                        <option value="Up">Upsloping</option>
+                        <option value="Flat">Flat</option>
+                        <option value="Down">Downsloping</option>
+                      </select>
+                    </div>
+                    <span class="err" data-for="ST_Slope"></span>
+                  </div>
+                </div>
+              </fieldset>
+
+              <div class="form-actions">
+                <button type="submit" id="predictBtn" class="btn btn-primary btn-lg">
+                  <span class="btn-label">Analyze risk</span>
+                  <span class="spinner" aria-hidden="true"></span>
+                </button>
+                <button type="button" id="resetBtn" class="btn btn-quiet btn-lg">Reset</button>
+              </div>
+            </form>
           </div>
-        </section>
 
-        <section class="panel">
-          <h2>Predict Heart Disease</h2>
-          <p style="color:#666;font-size:14px;margin-bottom:12px">
-            Enter patient information to predict heart disease risk.
-          </p>
-          <form id="predictForm">
-            <div class="row">
-              <label>Age<input name="Age" required /></label>
-              <label>Sex<input name="Sex" required placeholder="M/F"/></label>
-            </div>
-            <div class="row">
-              <label>Chest Pain Type<input name="ChestPainType" required placeholder="ATA/NAP/ASY/TA"/></label>
-              <label>Resting Blood Pressure<input name="RestingBP" required/></label>
-            </div>
-            <div class="row">
-              <label>Cholesterol<input name="Cholesterol" required/></label>
-              <label>Fasting Blood Sugar<input name="FastingBS" required/></label>
-            </div>
-            <div class="row">
-              <label>Resting ECG<input name="RestingECG" required placeholder="Normal/ST/LVH"/></label>
-              <label>Max HR<input name="MaxHR" required/></label>
-            </div>
-            <div class="row">
-              <label>Exercise Angina<input name="ExerciseAngina" required placeholder="Y/N"/></label>
-              <label>Oldpeak<input name="Oldpeak" required/></label>
-            </div>
-            <div class="row">
-              <label>ST Slope<input name="ST_Slope" required placeholder="Up/Flat/Down"/></label>
+          <!-- Result column -->
+          <aside class="result-col reveal" style="--d:120ms" aria-live="polite">
+            <div class="card result-card" id="resultCard" data-state="empty">
+              <!-- empty -->
+              <div class="state state-empty">
+                <div class="empty-heart"><span></span><svg viewBox="0 0 24 24" width="56" height="56"><path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.5 2.7 5 6.1 5c2 0 3.3 1.1 3.9 2.2C10.6 6.1 11.9 5 13.9 5c3.4 0 5.2 3.5 3.7 6.8C19.5 16.4 12 21 12 21z"/></svg></div>
+                <h3>Your results will appear here</h3>
+                <p class="muted">Complete the form and press <b>Analyze risk</b> to see the estimated probability and key contributing factors.</p>
+              </div>
+              <!-- loading -->
+              <div class="state state-loading">
+                <div class="ring-loader"></div>
+                <h3>Analyzing…</h3>
+                <p class="muted">Running the model on the submitted values.</p>
+                <div class="skeleton"></div><div class="skeleton s2"></div><div class="skeleton s3"></div>
+              </div>
+              <!-- result -->
+              <div class="state state-result">
+                <div class="gauge-wrap">
+                  <svg class="gauge" viewBox="0 0 180 180" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="gaugeLow" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#10b981"/></linearGradient>
+                      <linearGradient id="gaugeMod" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbbf24"/><stop offset="1" stop-color="#f59e0b"/></linearGradient>
+                      <linearGradient id="gaugeHigh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fb7185"/><stop offset="1" stop-color="#e11d48"/></linearGradient>
+                    </defs>
+                    <circle class="g-track" cx="90" cy="90" r="76" />
+                    <circle class="g-bar" id="gaugeBar" cx="90" cy="90" r="76" pathLength="100" />
+                  </svg>
+                  <div class="gauge-center">
+                    <span class="gauge-num"><span id="riskNum">0</span><i>%</i></span>
+                    <span class="gauge-cap">Estimated risk</span>
+                  </div>
+                </div>
+                <div class="risk-badge" id="riskBadge">Low risk</div>
+                <p class="verdict" id="verdict"></p>
+
+                <div class="factors">
+                  <h4>Contributing factors</h4>
+                  <ul id="keyFactors"></ul>
+                </div>
+              </div>
+              <!-- error -->
+              <div class="state state-error">
+                <div class="err-ico">!</div>
+                <h3>Something went wrong</h3>
+                <p class="muted" id="errorMsg"></p>
+                <button type="button" class="btn btn-quiet" id="retryBtn">Dismiss</button>
+              </div>
             </div>
 
-            <button type="button" id="predictBtn" class="btn primary">Predict</button>
-          </form>
-          <div id="predictResult" class="result"></div>
-        </section>
-      </main>
-    </div>
+            <p class="disclaimer">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+              For educational purposes only. This tool is not a medical device and does not replace professional diagnosis.
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ============ TRAIN ============ -->
+      <section class="section" id="train">
+        <div class="section-head reveal">
+          <span class="kicker">Step 2</span>
+          <h2>Model performance &amp; training</h2>
+          <p>Review how the current model performs on held-out data, or retrain it with the bundled dataset or your own CSV.</p>
+        </div>
+
+        <div class="train-grid">
+          <div class="card spot reveal">
+            <div class="card-head"><div><h3>Validation metrics</h3><p class="muted" id="trainedAt">No training run recorded yet.</p></div></div>
+            <div class="metrics" id="metrics">
+              <div class="metric" data-key="val_accuracy"><span class="m-label">Accuracy</span><span class="m-val">—</span><span class="m-bar"><i></i></span></div>
+              <div class="metric" data-key="val_precision"><span class="m-label">Precision</span><span class="m-val">—</span><span class="m-bar"><i></i></span></div>
+              <div class="metric" data-key="val_recall"><span class="m-label">Recall</span><span class="m-val">—</span><span class="m-bar"><i></i></span></div>
+              <div class="metric" data-key="val_f1"><span class="m-label">F1 score</span><span class="m-val">—</span><span class="m-bar"><i></i></span></div>
+              <div class="metric" data-key="val_roc_auc"><span class="m-label">ROC AUC</span><span class="m-val">—</span><span class="m-bar"><i></i></span></div>
+              <div class="metric" data-key="train_accuracy"><span class="m-label">Train accuracy</span><span class="m-val">—</span><span class="m-bar"><i></i></span></div>
+            </div>
+            <h4 class="sub">Feature importance</h4>
+            <div class="importance" id="importance"><p class="muted">Train the model to see which inputs matter most.</p></div>
+          </div>
+
+          <div class="card spot reveal" style="--d:120ms">
+            <div class="card-head"><div><h3>Train model</h3><p class="muted">Replaces the active model. Uses <code>heart.csv</code> unless you upload a file.</p></div></div>
+
+            <label class="dropzone" id="dropzone" for="file">
+              <input id="file" type="file" accept=".csv,text/csv" hidden />
+              <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+              <span class="dz-title" id="dzTitle">Drop a CSV here or <u>browse</u></span>
+              <span class="dz-sub" id="dzSub">Optional · max 5 MB · must include all 11 features + <code>HeartDisease</code></span>
+            </label>
+            <button type="button" class="link-btn" id="clearFile" hidden>Remove file</button>
+
+            <div class="field slider-field">
+              <label for="val_size">Validation split <output id="valOut">20%</output></label>
+              <input id="val_size" type="range" min="0.05" max="0.5" step="0.05" value="0.2" />
+              <div class="ticks"><span>5%</span><span>50%</span></div>
+            </div>
+
+            <details class="advanced">
+              <summary>Advanced</summary>
+              <div class="field">
+                <label for="train_secret">Admin token <small>only if the server sets TRAIN_SECRET</small></label>
+                <input id="train_secret" type="password" autocomplete="off" placeholder="Optional" />
+              </div>
+            </details>
+
+            <button type="button" id="trainBtn" class="btn btn-primary btn-lg block">
+              <span class="btn-label">Train model</span>
+              <span class="spinner" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ABOUT ============ -->
+      <section class="section" id="about">
+        <div class="section-head reveal">
+          <span class="kicker">How it works</span>
+          <h2>From measurements to insight</h2>
+        </div>
+        <div class="steps">
+          <article class="step card reveal"><span class="step-n">1</span><h3>Collect</h3><p>Eleven routine clinical inputs — vitals, labs, symptoms and resting ECG findings.</p></article>
+          <article class="step card reveal" style="--d:100ms"><span class="step-n">2</span><h3>Process</h3><p>Missing values are imputed, numbers are scaled and categories one-hot encoded in a single pipeline.</p></article>
+          <article class="step card reveal" style="--d:200ms"><span class="step-n">3</span><h3>Predict</h3><p>A 200-tree Random Forest returns the probability of heart disease for the patient.</p></article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <span class="brand-name">Cardio<b>Predict</b></span>
+        <span>Built with FastAPI &amp; scikit-learn · Dataset: UCI Heart Failure Prediction</span>
+        <a href="#top" class="to-top">Back to top ↑</a>
+      </div>
+    </footer>
+
+    <!-- confirm dialog -->
+    <dialog id="confirmDlg" class="dialog">
+      <form method="dialog">
+        <div class="dlg-ico">⟳</div>
+        <h3>Train a new model?</h3>
+        <p id="confirmText" class="muted"></p>
+        <div class="dlg-actions">
+          <button value="cancel" class="btn btn-quiet">Cancel</button>
+          <button value="ok" class="btn btn-primary" id="confirmOk">Train now</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div class="toasts" id="toasts" aria-live="polite"></div>
+
     <script src="main.js"></script>
   </body>
 </html>
